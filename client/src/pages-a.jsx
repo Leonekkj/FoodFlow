@@ -461,7 +461,7 @@ function MesaPanel({ t, mesa, pedido, onClose, onAbrir, onFechar }) {
 // Pedidos
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function PedidosPage({ t, data, setData, refresh }) {
+export function PedidosPage({ t, data, setData, refresh, onToast }) {
   const [tab, setTab] = React.useState('balcao');
   const [cart, setCart] = React.useState([]);
   const [endereco, setEndereco] = React.useState('');
@@ -502,6 +502,7 @@ export function PedidosPage({ t, data, setData, refresh }) {
         setData(d => ({ ...d, pedidos: [newOrder, ...(d.pedidos || [])] }));
         setCart([]);
         setEndereco('');
+        if (onToast) onToast(`🖨️ Comanda #${newOrder.id} enviada para a cozinha`);
         if (refresh) refresh();
       }
     } catch {

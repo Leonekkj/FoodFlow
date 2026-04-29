@@ -283,7 +283,7 @@ function MobileMesas({ t, data, refresh, setPage }) {
 }
 
 // ─── Pedidos ─────────────────────────────────────────────────────────────────
-function MobilePedidos({ t, data, refresh }) {
+function MobilePedidos({ t, data, refresh, showToast }) {
   const cats = [...new Set((data.produtos || []).map(p => p.categoria))]
   const [cat, setCat] = React.useState(cats[0] || '')
   const [tab, setTab] = React.useState('balcao')
@@ -323,6 +323,7 @@ function MobilePedidos({ t, data, refresh }) {
       setCart([])
       setEndereco('')
       setSuccess(true)
+      if (showToast) showToast('🖨️ Comanda enviada para a cozinha')
       if (refresh) await refresh()
       setTimeout(() => setSuccess(false), 2000)
     } finally {
@@ -662,8 +663,13 @@ function MobileRelat({ t, data }) {
 }
 
 // ─── App root ─────────────────────────────────────────────────────────────────
-export function MobileApp({ t, data, setData, refresh }) {
+export function MobileApp({ t, data, setData, refresh, showToast: showToastProp }) {
   const [page, setPage] = React.useState('dashboard')
+  const [toast, setToast] = React.useState(null)
+  const showToast = React.useCallback((msg) => {
+    setToast(msg)
+    setTimeout(() => setToast(null), 3200)
+  }, [])
   const dateLabel = todayLabel()
   const titles = {
     dashboard:  { title: 'FoodFlow',       sub: `Centro · ${dateLabel}` },
@@ -685,11 +691,20 @@ export function MobileApp({ t, data, setData, refresh }) {
       <div style={{ flex: 1, overflowY: 'auto', paddingBottom: page === 'pedidos' ? 0 : 80, position: 'relative' }}>
         {page === 'dashboard'  && <MobileDash    t={t} data={data}/>}
         {page === 'mesas'      && <MobileMesas   t={t} data={data} setData={setData} refresh={refresh} setPage={setPage}/>}
-        {page === 'pedidos'    && <MobilePedidos t={t} data={data} setData={setData} refresh={refresh}/>}
+        {page === 'pedidos'    && <MobilePedidos t={t} data={data} setData={setData} refresh={refresh} showToast={showToast}/>}
         {page === 'caixa'      && <MobileCaixa   t={t} data={data} setData={setData} refresh={refresh}/>}
         {page === 'relatorios' && <MobileRelat   t={t} data={data}/>}
       </div>
       <MobileTabbar t={t} page={page} setPage={setPage}/>
+      {toast && (
+        <div style={{
+          position: 'fixed', bottom: 80, left: '50%', transform: 'translateX(-50%)', zIndex: 999,
+          background: '#1a1a2e', color: '#fff', padding: '10px 20px', borderRadius: 8,
+          fontSize: 13, fontWeight: 500, boxShadow: '0 4px 20px rgba(0,0,0,0.35)',
+          animation: 'ff-pop 180ms cubic-bezier(0.2,0.9,0.2,1)',
+          whiteSpace: 'nowrap',
+        }}>{toast}</div>
+      )}
     </div>
   )
 }

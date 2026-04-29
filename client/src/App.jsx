@@ -3,6 +3,7 @@ import { makeTheme, Btn } from './atoms.jsx'
 import { Sidebar, Topbar } from './shell.jsx'
 import { DashboardPage, MesasPage, PedidosPage } from './pages-a.jsx'
 import { CaixaPage, RelatoriosPage, UnidadesPage } from './pages-b.jsx'
+import { CardapioPage, FuncionariosPage, IntegracoesPage, EstoquePage, FinanceiroPage, FidelidadePage } from './pages-c.jsx'
 import { MobileApp } from './mobile.jsx'
 import { getMockData } from './data.jsx'
 import { api } from './api.js'
@@ -18,6 +19,11 @@ export default function App() {
   const [unidade, setUnidade] = React.useState(null)
   const [loading, setLoading] = React.useState(true)
   const [isMobile, setIsMobile] = React.useState(() => window.innerWidth < 768)
+  const [toast, setToast] = React.useState(null)
+  const showToast = React.useCallback((msg) => {
+    setToast(msg)
+    setTimeout(() => setToast(null), 3200)
+  }, [])
 
   React.useEffect(() => {
     const handler = () => setIsMobile(window.innerWidth < 768)
@@ -42,12 +48,18 @@ export default function App() {
   React.useEffect(() => { load() }, [load])
 
   const titles = {
-    dashboard:  { title: 'Dashboard',  subtitle: `${unidade?.nome || ''} · Terça, 29 de Abril 2026` },
-    mesas:      { title: 'Mesas',      subtitle: `${(data.mesas || []).length} mesas · ${(data.mesas || []).filter(m => m.status !== 'livre').length} em uso` },
-    pedidos:    { title: 'Pedidos',    subtitle: 'Criar novo pedido (Balcão / Delivery)' },
-    caixa:      { title: 'Caixa',      subtitle: `${(data.pedidos || []).filter(p => p.status !== 'fechado').length} contas em aberto` },
-    relatorios: { title: 'Relatórios', subtitle: 'Análise de vendas e desempenho' },
-    unidades:   { title: 'Unidades',   subtitle: `${(data.unidades || []).length} unidades · ${(data.unidades || []).filter(u => u.ativo).length} ativas` },
+    dashboard:    { title: 'Dashboard',     subtitle: `${unidade?.nome || ''} · Terça, 29 de Abril 2026` },
+    mesas:        { title: 'Mesas',         subtitle: `${(data.mesas || []).length} mesas · ${(data.mesas || []).filter(m => m.status !== 'livre').length} em uso` },
+    pedidos:      { title: 'Pedidos',       subtitle: 'Criar novo pedido (Balcão / Delivery)' },
+    caixa:        { title: 'Caixa',         subtitle: `${(data.pedidos || []).filter(p => p.status !== 'fechado').length} contas em aberto` },
+    relatorios:   { title: 'Relatórios',    subtitle: 'Análise de vendas e desempenho' },
+    unidades:     { title: 'Unidades',      subtitle: `${(data.unidades || []).length} unidades · ${(data.unidades || []).filter(u => u.ativo).length} ativas` },
+    cardapio:     { title: 'Cardápio',      subtitle: `${(data.produtos || []).length} produtos cadastrados` },
+    funcionarios: { title: 'Funcionários',  subtitle: 'Gerencie a equipe e os níveis de acesso' },
+    integracoes:  { title: 'Integrações',   subtitle: 'Impressora, maquininha, delivery e fiscal' },
+    estoque:      { title: 'Estoque',       subtitle: 'Controle de estoque com baixa automática' },
+    financeiro:   { title: 'Financeiro',    subtitle: 'Fluxo de caixa, DRE e contas a receber' },
+    fidelidade:   { title: 'Fidelidade',    subtitle: 'Programa de pontos e ranking de clientes' },
   }
 
   const navigateTo = (p) => { setPage(p); setOpenMesa(null) }
@@ -61,7 +73,7 @@ export default function App() {
   }
 
   if (isMobile) {
-    return <MobileApp t={t} data={data} setData={setData} refresh={load}/>
+    return <MobileApp t={t} data={data} setData={setData} refresh={load} showToast={showToast}/>
   }
 
   return (
@@ -90,12 +102,27 @@ export default function App() {
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative' }}>
           {page === 'dashboard'  && <DashboardPage  t={t} data={data} setPage={navigateTo}/>}
           {page === 'mesas'      && <MesasPage      t={t} data={data} setData={setData} openMesa={openMesa} setOpenMesa={setOpenMesa} setPage={navigateTo} refresh={load}/>}
-          {page === 'pedidos'    && <PedidosPage    t={t} data={data} setData={setData} refresh={load}/>}
+          {page === 'pedidos'    && <PedidosPage    t={t} data={data} setData={setData} refresh={load} onToast={showToast}/>}
           {page === 'caixa'      && <CaixaPage      t={t} data={data} setData={setData} refresh={load}/>}
-          {page === 'relatorios' && <RelatoriosPage t={t} data={data}/>}
-          {page === 'unidades'   && <UnidadesPage   t={t} data={data}/>}
+          {page === 'relatorios'   && <RelatoriosPage  t={t} data={data}/>}
+          {page === 'unidades'     && <UnidadesPage    t={t} data={data}/>}
+          {page === 'cardapio'     && <CardapioPage    t={t} data={data} setData={setData}/>}
+          {page === 'funcionarios' && <FuncionariosPage t={t}/>}
+          {page === 'integracoes'  && <IntegracoesPage  t={t}/>}
+          {page === 'estoque'      && <EstoquePage      t={t} data={data}/>}
+          {page === 'financeiro'   && <FinanceiroPage   t={t} data={data}/>}
+          {page === 'fidelidade'   && <FidelidadePage   t={t}/>}
         </div>
       </main>
+      {toast && (
+        <div style={{
+          position: 'fixed', bottom: 28, left: '50%', transform: 'translateX(-50%)', zIndex: 999,
+          background: '#1a1a2e', color: '#fff', padding: '10px 20px', borderRadius: 8,
+          fontSize: 13, fontWeight: 500, boxShadow: '0 4px 20px rgba(0,0,0,0.35)',
+          animation: 'ff-pop 180ms cubic-bezier(0.2,0.9,0.2,1)',
+          whiteSpace: 'nowrap',
+        }}>{toast}</div>
+      )}
     </div>
   )
 }

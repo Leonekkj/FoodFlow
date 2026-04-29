@@ -10,6 +10,15 @@ export const NAV = [
   { id: 'caixa',      label: 'Caixa',      icon: 'cash' },
   { id: 'relatorios', label: 'Relatórios', icon: 'chart' },
   { id: 'unidades',   label: 'Unidades',   icon: 'building' },
+  { section: 'MVP Comercial' },
+  { id: 'cardapio',     label: 'Cardápio',     icon: 'bag',      badge: 'MVP' },
+  { id: 'funcionarios', label: 'Funcionários', icon: 'user',     badge: 'MVP' },
+  { id: 'integracoes',  label: 'Integrações',  icon: 'settings', badge: 'MVP' },
+  { section: 'v1.5 — Gestão' },
+  { id: 'estoque',    label: 'Estoque',    icon: 'flame', badge: 'v1.5' },
+  { id: 'financeiro', label: 'Financeiro', icon: 'chart', badge: 'v1.5' },
+  { section: 'v2.0 — Plataforma' },
+  { id: 'fidelidade', label: 'Fidelidade', icon: 'check', badge: 'v2.0' },
 ];
 
 export function Wordmark({ t, collapsed = false }) {
@@ -98,9 +107,20 @@ export function Sidebar({ t, page, setPage, collapsed = false, unidade, setUnida
         </div>
       )}
 
-      <nav style={{ flex: 1, padding: collapsed ? '6px' : '4px 8px', display: 'flex', flexDirection: 'column', gap: 1 }}>
-        {NAV.map(item => {
+      <nav style={{ flex: 1, padding: collapsed ? '6px' : '4px 8px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 1 }}>
+        {NAV.map((item, i) => {
+          if (item.section) {
+            if (collapsed) return null;
+            return (
+              <div key={i} style={{
+                padding: '10px 10px 3px',
+                fontSize: 9.5, fontWeight: 600, color: t.textMuted,
+                letterSpacing: '0.07em', textTransform: 'uppercase',
+              }}>{item.section}</div>
+            );
+          }
           const active = page === item.id;
+          const badgeColors = { MVP: '#185FA5', 'v1.5': '#d97706', 'v2.0': '#16a34a' };
           return (
             <button key={item.id} onClick={() => setPage(item.id)}
               title={collapsed ? item.label : undefined}
@@ -117,7 +137,14 @@ export function Sidebar({ t, page, setPage, collapsed = false, unidade, setUnida
               onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = t.bgHover; }}
               onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = 'transparent'; }}>
               <Icon name={item.icon} size={15} stroke={active ? t.accentText : t.textDim} sw={1.6}/>
-              {!collapsed && <span>{item.label}</span>}
+              {!collapsed && <span style={{ flex: 1, textAlign: 'left' }}>{item.label}</span>}
+              {!collapsed && item.badge && (
+                <span style={{
+                  fontSize: 9, fontWeight: 700, padding: '1px 5px', borderRadius: 3,
+                  background: badgeColors[item.badge] || t.accent, color: '#fff',
+                  letterSpacing: '0.03em',
+                }}>{item.badge}</span>
+              )}
             </button>
           );
         })}
