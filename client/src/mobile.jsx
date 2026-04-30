@@ -87,19 +87,19 @@ function MobileTabbar({ t, page, setPage }) {
 }
 
 // ─── Header ──────────────────────────────────────────────────────────────────
-function MobileHeader({ t, title, sub }) {
+function MobileHeader({ t, title, sub, dark, onToggleDark }) {
   return (
     <div style={{ padding: '8px 16px 12px', borderBottom: `0.5px solid ${t.borderSoft}`, background: t.bgPanel }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 16, fontWeight: 600, color: t.text, letterSpacing: '-0.01em' }}>{title}</div>
           {sub && <div style={{ fontSize: 11.5, color: t.textMuted, marginTop: 1 }}>{sub}</div>}
         </div>
-        <button style={{
+        <button onClick={onToggleDark} title={dark ? 'Modo claro' : 'Modo escuro'} style={{
           width: 32, height: 32, borderRadius: 8, background: t.bgSubtle,
           border: `0.5px solid ${t.border}`, display: 'grid', placeItems: 'center', cursor: 'pointer',
         }}>
-          <Icon name="bell" size={14} stroke={t.textDim}/>
+          <span style={{ fontSize: 16 }}>{dark ? '☀️' : '🌙'}</span>
         </button>
       </div>
     </div>
@@ -663,7 +663,7 @@ function MobileRelat({ t, data }) {
 }
 
 // ─── App root ─────────────────────────────────────────────────────────────────
-export function MobileApp({ t, data, setData, refresh, showToast: showToastProp }) {
+export function MobileApp({ t, data, setData, refresh, showToast: showToastProp, dark, onToggleDark }) {
   const [page, setPage] = React.useState('dashboard')
   const [toast, setToast] = React.useState(null)
   const showToast = React.useCallback((msg) => {
@@ -687,7 +687,7 @@ export function MobileApp({ t, data, setData, refresh, showToast: showToastProp 
       fontFamily: 'inherit',
       position: 'relative',
     }}>
-      <MobileHeader t={t} title={T.title} sub={T.sub}/>
+      <MobileHeader t={t} title={T.title} sub={T.sub} dark={dark} onToggleDark={onToggleDark}/>
       <div style={{ flex: 1, overflowY: 'auto', paddingBottom: page === 'pedidos' ? 0 : 80, position: 'relative' }}>
         {page === 'dashboard'  && <MobileDash    t={t} data={data}/>}
         {page === 'mesas'      && <MobileMesas   t={t} data={data} setData={setData} refresh={refresh} setPage={setPage}/>}

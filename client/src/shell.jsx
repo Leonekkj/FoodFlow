@@ -46,9 +46,10 @@ export function Wordmark({ t, collapsed = false }) {
   );
 }
 
-export function Sidebar({ t, page, setPage, collapsed = false, unidade, setUnidade, unidades }) {
+export function Sidebar({ t, page, setPage, collapsed = false, unidade, setUnidade, unidades, dark, onToggleDark, density, onDensity }) {
   const W = collapsed ? 56 : 220;
   const [unidOpen, setUnidOpen] = React.useState(false);
+  const [settingsOpen, setSettingsOpen] = React.useState(false);
 
   return (
     <aside style={{
@@ -168,8 +169,54 @@ export function Sidebar({ t, page, setPage, collapsed = false, unidade, setUnida
             <div style={{ fontSize: 10.5, color: t.textMuted, lineHeight: 1.2 }}>Gerente</div>
           </div>
         )}
-        {!collapsed && <Icon name="settings" size={13} stroke={t.textMuted} />}
+        {!collapsed && (
+          <button onClick={() => setSettingsOpen(o => !o)} style={{
+            width: 26, height: 26, borderRadius: 5, border: `0.5px solid ${t.border}`,
+            background: settingsOpen ? t.bgHover : 'transparent', cursor: 'pointer',
+            display: 'grid', placeItems: 'center',
+          }}>
+            <Icon name="settings" size={13} stroke={settingsOpen ? t.accentText : t.textMuted}/>
+          </button>
+        )}
       </div>
+
+      {settingsOpen && !collapsed && (
+        <div style={{
+          position: 'absolute', bottom: 56, left: 8, right: 8, zIndex: 50,
+          background: t.bgPanel, border: `0.5px solid ${t.border}`,
+          borderRadius: 8, boxShadow: t.shadow, padding: 12,
+        }}>
+          <div style={{ fontSize: 10.5, fontWeight: 600, color: t.textMuted, letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 10 }}>Configurações</div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+            <span style={{ flex: 1, fontSize: 12, color: t.text }}>Modo escuro</span>
+            <button onClick={onToggleDark} style={{
+              width: 38, height: 20, borderRadius: 10, border: 0, cursor: 'pointer',
+              background: dark ? t.accent : t.bgSubtle, position: 'relative', transition: 'background 150ms',
+            }}>
+              <div style={{
+                position: 'absolute', top: 2, left: dark ? 20 : 2,
+                width: 16, height: 16, borderRadius: '50%',
+                background: dark ? '#fff' : t.textMuted,
+                transition: 'left 150ms',
+              }}/>
+            </button>
+          </div>
+
+          <div style={{ fontSize: 11, fontWeight: 500, color: t.textMuted, marginBottom: 6 }}>Densidade</div>
+          <div style={{ display: 'flex', gap: 4 }}>
+            {['compact', 'regular', 'comfy'].map(d => (
+              <button key={d} onClick={() => onDensity(d)} style={{
+                flex: 1, padding: '4px 0', borderRadius: 4, border: `0.5px solid ${density === d ? t.accent : t.border}`,
+                background: density === d ? t.accentBg : 'transparent',
+                color: density === d ? t.accentText : t.textDim,
+                fontSize: 10.5, fontFamily: 'inherit', fontWeight: density === d ? 600 : 400, cursor: 'pointer',
+                textTransform: 'capitalize',
+              }}>{d}</button>
+            ))}
+          </div>
+        </div>
+      )}
     </aside>
   );
 }

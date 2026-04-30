@@ -8,10 +8,10 @@ import { MobileApp } from './mobile.jsx'
 import { getMockData } from './data.jsx'
 import { api } from './api.js'
 
-const DENSITY = 'regular'
-
 export default function App() {
-  const t = makeTheme({ dark: false, density: DENSITY })
+  const [dark, setDark] = React.useState(false)
+  const [density, setDensity] = React.useState('regular')
+  const t = makeTheme({ dark, density })
 
   const [page, setPage] = React.useState('dashboard')
   const [openMesa, setOpenMesa] = React.useState(null)
@@ -73,7 +73,7 @@ export default function App() {
   }
 
   if (isMobile) {
-    return <MobileApp t={t} data={data} setData={setData} refresh={load} showToast={showToast}/>
+    return <MobileApp t={t} data={data} setData={setData} refresh={load} showToast={showToast} dark={dark} onToggleDark={() => setDark(d => !d)}/>
   }
 
   return (
@@ -86,6 +86,10 @@ export default function App() {
         unidade={unidade || (data.unidades || [])[0] || { nome: '—', id: 0, ativo: true }}
         setUnidade={setUnidade}
         unidades={data.unidades || []}
+        dark={dark}
+        onToggleDark={() => setDark(d => !d)}
+        density={density}
+        onDensity={setDensity}
       />
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, position: 'relative' }}>
         <Topbar

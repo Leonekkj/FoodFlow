@@ -445,7 +445,7 @@ function MesaPanel({ t, mesa, pedido, onClose, onAbrir, onFechar }) {
         <div style={{ padding: 14, borderTop: `0.5px solid ${t.borderSoft}`, display: 'flex', gap: 8 }}>
           {pedido ? (
             <>
-              <Btn t={t} kind="default" size="md" icon="plus">Adicionar</Btn>
+              <Btn t={t} kind="default" size="md" icon="plus" onClick={onAbrir}>Adicionar</Btn>
               <Btn t={t} kind="primary" size="md" icon="cash" onClick={onFechar} style={{ flex: 1 }}>Fechar conta</Btn>
             </>
           ) : (
